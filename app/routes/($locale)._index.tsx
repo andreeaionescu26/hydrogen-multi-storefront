@@ -58,6 +58,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  console.log('Hey!', data);
   return (
     <div className="home">
       <h1>Homepage - Production</h1>
