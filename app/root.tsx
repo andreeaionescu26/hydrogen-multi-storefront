@@ -79,6 +79,11 @@ export async function loader(args: Route.LoaderArgs) {
     ...deferredData,
     ...criticalData,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    storefrontHandle: env.STOREFRONT_HANDLE || 'default',
+    publicStoreSubdomain: env.PUBLIC_STORE_DOMAIN?.replace(
+      '.myshopify.com',
+      '',
+    ),
     shop: getShopAnalytics({
       storefront,
       publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
@@ -105,7 +110,7 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
-        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+        headerMenuHandle: context.env.HEADER_MENU_HANDLE || 'main-menu',
       },
     }),
     // Add other queries here, so that they are loaded in parallel
@@ -127,7 +132,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
     .query(FOOTER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
-        footerMenuHandle: 'footer', // Adjust to your footer menu handle
+        footerMenuHandle: context.env.FOOTER_MENU_HANDLE || 'footer',
       },
     })
     .catch((error: Error) => {

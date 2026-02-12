@@ -5,3 +5,11 @@
 
 // Enhance TypeScript's built-in typings.
 import '@total-typescript/ts-reset';
+
+declare global {
+  interface Env {
+    STOREFRONT_HANDLE?: string;
+    HEADER_MENU_HANDLE?: string;
+    FOOTER_MENU_HANDLE?: string;
+  }
+}
