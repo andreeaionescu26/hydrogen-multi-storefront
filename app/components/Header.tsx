@@ -13,6 +13,7 @@ import {cleanMenuUrl} from '~/lib/i18n';
 interface HeaderProps {
   header: HeaderQuery;
   cart: Promise<CartApiQueryFragment | null>;
+  isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
 }
 
@@ -20,6 +21,7 @@ type Viewport = 'desktop' | 'mobile';
 
 export function Header({
   header,
+  isLoggedIn,
   cart,
   publicStoreDomain,
 }: HeaderProps) {
@@ -35,7 +37,7 @@ export function Header({
         primaryDomainUrl={header.shop.primaryDomain.url}
         publicStoreDomain={publicStoreDomain}
       />
-      <HeaderCtas cart={cart} publicStoreDomain={publicStoreDomain} />
+      <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
     </header>
   );
 }
@@ -92,16 +94,19 @@ export function HeaderMenu({
 }
 
 function HeaderCtas({
+  isLoggedIn,
   cart,
-  publicStoreDomain,
-}: Pick<HeaderProps, 'cart' | 'publicStoreDomain'>) {
-  const accountUrl = `https://${publicStoreDomain}/account`;
+}: Pick<HeaderProps, 'isLoggedIn' | 'cart'>) {
   return (
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
-      <a href={accountUrl} rel="noopener noreferrer">
-        Account
-      </a>
+      <Link variant="nav" prefetch="intent" to="/account" style={activeLinkStyle}>
+        <Suspense fallback="Sign in">
+          <Await resolve={isLoggedIn} errorElement="Sign in">
+            {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
+          </Await>
+        </Suspense>
+      </Link>
       <SearchToggle />
       <CartToggle cart={cart} />
     </nav>
