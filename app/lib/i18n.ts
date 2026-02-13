@@ -14,7 +14,7 @@ export const DEFAULT_LOCALE: I18nLocale = {
 
 export const SUPPORTED_LOCALES: I18nLocale[] = [
   DEFAULT_LOCALE,
-  {language: 'EN', country: 'DK', pathPrefix: '/en'},
+  {language: 'EN', country: 'DE', pathPrefix: '/en'},
 ];
 
 /**
