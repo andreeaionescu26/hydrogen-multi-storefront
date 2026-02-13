@@ -1,14 +1,8 @@
-import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {findLocaleByPrefix} from '~/lib/i18n';
 
-export async function loader({params, context}: LoaderFunctionArgs) {
-  const {language, country} = context.storefront.i18n;
-
-  if (
-    params.locale &&
-    params.locale.toLowerCase() !== `${language}-${country}`.toLowerCase()
-  ) {
-    // If the locale URL param is defined, yet we still are still at the default locale
-    // then the the locale param must be invalid, send to the 404 page
+export async function loader({params}: {params: {locale?: string}}) {
+  // If there's a locale param but it doesn't match any supported locale, 404
+  if (params.locale && !findLocaleByPrefix(params.locale)) {
     throw new Response(null, {status: 404});
   }
 

@@ -17,6 +17,7 @@ import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import {PageLayout} from './components/PageLayout';
+import {DEFAULT_LOCALE, type I18nLocale} from '~/lib/i18n';
 
 export type RootLoader = typeof loader;
 
@@ -27,6 +28,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
   currentUrl,
   nextUrl,
+  currentParams,
+  nextParams,
 }) => {
   // revalidate when a mutation is performed e.g add to cart, login...
   if (formMethod && formMethod !== 'GET') return true;
@@ -34,11 +37,9 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   // revalidate when manually revalidating via useRevalidator
   if (currentUrl.toString() === nextUrl.toString()) return true;
 
-  // Defaulting to no revalidation for root loader data to improve performance.
-  // When using this feature, you risk your UI getting out of sync with your server.
-  // Use with caution. If you are uncomfortable with this optimization, update the
-  // line below to `return defaultShouldRevalidate` instead.
-  // For more details see: https://remix.run/docs/en/main/route/should-revalidate
+  // revalidate when locale changes
+  if (currentParams.locale !== nextParams.locale) return true;
+
   return false;
 };
 
@@ -74,10 +75,12 @@ export async function loader(args: Route.LoaderArgs) {
   const criticalData = await loadCriticalData(args);
 
   const {storefront, env} = args.context;
+  const selectedLocale = storefront.i18n as I18nLocale;
 
   return {
     ...deferredData,
     ...criticalData,
+    selectedLocale,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     storefrontHandle: env.STOREFRONT_HANDLE || 'default',
     publicStoreSubdomain: env.PUBLIC_STORE_DOMAIN?.replace(
@@ -92,9 +95,8 @@ export async function loader(args: Route.LoaderArgs) {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
       withPrivacyBanner: false,
-      // localize the privacy banner
-      country: args.context.storefront.i18n.country,
-      language: args.context.storefront.i18n.language,
+      country: selectedLocale.country,
+      language: selectedLocale.language,
     },
   };
 }
@@ -149,9 +151,11 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
+  const data = useRouteLoaderData<RootLoader>('root');
+  const locale = (data?.selectedLocale as I18nLocale) ?? DEFAULT_LOCALE;
 
   return (
-    <html lang="en">
+    <html lang={locale.language.toLowerCase()}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -183,7 +187,10 @@ export default function App() {
       shop={data.shop}
       consent={data.consent}
     >
-      <PageLayout {...data}>
+      <PageLayout
+        key={`${data.selectedLocale?.language}-${data.selectedLocale?.country}`}
+        {...data}
+      >
         <Outlet />
       </PageLayout>
     </Analytics.Provider>

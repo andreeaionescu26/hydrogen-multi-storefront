@@ -1,5 +1,5 @@
 import {Money, Image} from '@shopify/hydrogen';
-import {Link} from 'react-router';
+import {Link} from '~/components/Link';
 import type {SectionFeaturedProductsFragment} from 'storefrontapi.generated';
 
 export function SectionFeaturedProducts(

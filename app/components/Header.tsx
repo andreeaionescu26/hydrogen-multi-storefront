@@ -1,5 +1,5 @@
 import {Suspense} from 'react';
-import {Await, NavLink, useAsyncValue} from 'react-router';
+import {Await, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
   useAnalytics,
@@ -7,6 +7,8 @@ import {
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
+import {Link} from '~/components/Link';
+import {cleanMenuUrl} from '~/lib/i18n';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -26,9 +28,9 @@ export function Header({
   const {shop, menu} = header;
   return (
     <header className="header">
-      <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
+      <Link variant="nav" prefetch="intent" to="/" style={activeLinkStyle} end>
         <strong>{shop.name}</strong>
-      </NavLink>
+      </Link>
       <HeaderMenu
         menu={menu}
         viewport="desktop"
@@ -57,7 +59,8 @@ export function HeaderMenu({
   return (
     <nav className={className} role="navigation">
       {viewport === 'mobile' && (
-        <NavLink
+        <Link
+          variant="nav"
           end
           onClick={close}
           prefetch="intent"
@@ -65,20 +68,15 @@ export function HeaderMenu({
           to="/"
         >
           Home
-        </NavLink>
+        </Link>
       )}
       {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
         if (!item.url) return null;
 
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
+        const url = cleanMenuUrl(item.url, primaryDomainUrl, publicStoreDomain);
         return (
-          <NavLink
+          <Link
+            variant="nav"
             className="header-menu-item"
             end
             key={item.id}
@@ -88,7 +86,7 @@ export function HeaderMenu({
             to={url}
           >
             {item.title}
-          </NavLink>
+          </Link>
         );
       })}
     </nav>
@@ -102,13 +100,13 @@ function HeaderCtas({
   return (
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
-      <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
+      <Link variant="nav" prefetch="intent" to="/account" style={activeLinkStyle}>
         <Suspense fallback="Sign in">
           <Await resolve={isLoggedIn} errorElement="Sign in">
             {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
           </Await>
         </Suspense>
-      </NavLink>
+      </Link>
       <SearchToggle />
       <CartToggle cart={cart} />
     </nav>

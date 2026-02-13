@@ -17,7 +17,11 @@ export function RouteContent({route}: {route: RouteContentQuery['route']}) {
 }
 
 export const ROUTE_CONTENT_QUERY = `#graphql
-  query RouteContent($handle: String!) {
+  query RouteContent(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
     route: metaobject(handle: {type: "route", handle: $handle}) {
       type
       id

@@ -1,4 +1,4 @@
-import {Link} from 'react-router';
+import {Link} from '~/components/Link';
 import {Image, Money} from '@shopify/hydrogen';
 import type {
   ProductItemFragment,

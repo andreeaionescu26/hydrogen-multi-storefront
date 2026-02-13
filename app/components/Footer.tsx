@@ -1,6 +1,8 @@
 import {Suspense} from 'react';
-import {Await, NavLink} from 'react-router';
+import {Await} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
+import {Link} from '~/components/Link';
+import {cleanMenuUrl} from '~/lib/i18n';
 
 interface FooterProps {
   footer: Promise<FooterQuery | null>;
@@ -45,20 +47,15 @@ function FooterMenu({
     <nav className="footer-menu" role="navigation">
       {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
         if (!item.url) return null;
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
+        const url = cleanMenuUrl(item.url, primaryDomainUrl, publicStoreDomain);
         const isExternal = !url.startsWith('/');
         return isExternal ? (
           <a href={url} key={item.id} rel="noopener noreferrer" target="_blank">
             {item.title}
           </a>
         ) : (
-          <NavLink
+          <Link
+            variant="nav"
             end
             key={item.id}
             prefetch="intent"
@@ -66,7 +63,7 @@ function FooterMenu({
             to={url}
           >
             {item.title}
-          </NavLink>
+          </Link>
         );
       })}
     </nav>
