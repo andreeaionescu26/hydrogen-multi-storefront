@@ -6,10 +6,12 @@ export function SectionFeaturedProducts(
   props: SectionFeaturedProductsFragment,
 ) {
   const {heading, body, products, withProductPrices} = props;
+  const showPrices = withProductPrices?.value === 'true';
+
   return (
     <section>
-      {heading && <h2>{heading.value}</h2>}
-      {body && <p>{body.value}</p>}
+      {heading?.value && <h2>{heading.value}</h2>}
+      {body?.value && <p>{body.value}</p>}
       {products?.references?.nodes && (
         <div
           style={{
@@ -20,22 +22,21 @@ export function SectionFeaturedProducts(
           }}
         >
           {products.references.nodes.map((product) => {
-            const {variants, priceRange, title} = product;
-            const variant = variants?.nodes?.[0];
+            const variant = product.variants?.nodes?.[0];
             return (
               <Link
                 key={product.id}
                 to={`/products/${product.handle}`}
                 prefetch="intent"
               >
-                {variant.image && (
+                {variant?.image && (
                   <Image data={variant.image} style={{width: 'auto'}} />
                 )}
-                <h5 style={{marginBottom: '.5rem'}}>{title}</h5>
-                {withProductPrices && (
+                <h5 style={{marginBottom: '.5rem'}}>{product.title}</h5>
+                {showPrices && (
                   <small style={{display: 'flex', marginTop: '.5rem'}}>
-                    <span>From</span> &nbsp;
-                    <Money data={priceRange.minVariantPrice} />
+                    <span>From</span>&nbsp;
+                    <Money data={product.priceRange.minVariantPrice} />
                   </small>
                 )}
               </Link>
@@ -52,10 +53,8 @@ const FEATURED_PRODUCT_FRAGMENT = `#graphql
     id
     title
     handle
-    productType
     variants(first: 1) {
       nodes {
-        title
         image {
           altText
           width
@@ -75,17 +74,13 @@ const FEATURED_PRODUCT_FRAGMENT = `#graphql
 
 export const SECTION_FEATURED_PRODUCTS_FRAGMENT = `#graphql
   fragment SectionFeaturedProducts on Metaobject {
-    type
     heading: field(key: "heading") {
-      key
       value
     }
     body: field(key: "body") {
-      key
       value
     }
     products: field(key: "products") {
-      key
       references(first: 10) {
         nodes {
           ... on Product {
@@ -95,7 +90,6 @@ export const SECTION_FEATURED_PRODUCTS_FRAGMENT = `#graphql
       }
     }
     withProductPrices: field(key: "with_product_prices") {
-      key
       value
     }
   }

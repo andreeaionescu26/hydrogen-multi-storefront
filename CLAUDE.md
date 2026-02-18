@@ -38,98 +38,94 @@ These are typed in `env.d.ts` and defaulted in `.env` for local dev.
 
 `app/root.tsx` reads `HEADER_MENU_HANDLE` and `FOOTER_MENU_HANDLE` from env vars (with fallbacks to `main-menu` and `footer`). Navigation menus are created in Shopify Admin with matching handles.
 
-### Metaobjects CMS (Route-Based Content)
+### Metaobjects CMS
 
-Based on the [Shopify Metaobjects CMS cookbook](https://shopify.dev/docs/storefronts/headless/hydrogen/cookbook/metaobjects). Standalone pages (homepage, about, etc.) use `route` metaobjects.
+Content is driven by two patterns depending on whether a Shopify resource exists for the route.
 
-**How it works:**
-1. A `route` metaobject definition has a `sections` field (list of metaobject references)
-2. Each section is a metaobject: `section_hero`, `section_featured_products`, `section_featured_collections`
-3. The route handle follows the convention: `{page}-{storefrontHandle}` (e.g. `home-default`, `home-variant-b`)
-4. The loader fetches the route metaobject and `<RouteContent>` renders its sections dynamically
+---
 
-**Key files:**
-- `app/sections/RouteContent.tsx` — fetches route metaobject, renders sections, exports `ROUTE_CONTENT_QUERY`
-- `app/sections/Sections.tsx` — dynamic section renderer (switch on `section.type`)
-- `app/sections/SectionHero.tsx` — hero banner with background image + CTA
-- `app/sections/SectionFeaturedProducts.tsx` — product grid
-- `app/sections/SectionFeaturedCollections.tsx` — collection grid
-- `app/utils/parseSection.ts` — recursively parses metaobject fields into usable data
-- `app/components/EditRoute.tsx` — dev/preview "Edit Route" button linking to Shopify admin
+#### Pages (Shopify Page resources)
+
+Shopify Pages are the source of truth. Each Page resource has **per-storefront metafields** that point to a `route` metaobject (`[HYDROGEN DEMO] Sections wrapper`), which holds the sections list.
+
+**Data chain:**
+```
+Page resource
+  └─ metafield(namespace: "{storefrontHandle}", key: "sections")
+       └─ reference → Metaobject (type: "route")
+            └─ field(key: "sections") → list of section metaobjects
+```
+
+- The page route (`app/routes/($locale).pages.$handle.tsx`) queries the page and drills into `sectionsWrapper.reference.sections`
+- Pages are created in Shopify Admin and automatically become routes — no code change needed
+- Each Page has a metafield definition per storefront (e.g. `namespace: "default"` and `namespace: "variant-b"`)
+
+---
+
+#### Index / Home page
+
+The homepage has no Page resource, so it uses a dedicated metaobject type: `hydrogen_demo_index_wrapper`.
+
+**Data chain:**
+```
+metaobjects(type: "hydrogen_demo_index_wrapper")
+  └─ filter: field(key: "storefront_handle").value === STOREFRONT_HANDLE
+       └─ field(key: "sections") → list of section metaobjects
+```
+
+- The loader fetches all `hydrogen_demo_index_wrapper` entries and matches on `storefront_handle` field
+- Each storefront has one entry (e.g. storefront_handle = `default`, storefront_handle = `variant-b`)
+
+---
 
 ### Metaobject Definitions in Shopify Admin
 
-Create these in **Settings > Custom data > Metaobjects** (enable storefront access on all):
+**Settings > Custom data > Metaobjects** (enable storefront access on all):
 
-1. **`route`** — `title` (single_line_text_field), `sections` (list.metaobject_reference)
-2. **`section_hero`** — `heading`, `subheading` (single_line_text_field), `image` (file_reference), `link` (metaobject_reference to `link`)
-3. **`section_featured_products`** — `heading`, `body` (single_line_text_field), `products` (list.product_reference), `with_product_prices` (boolean)
-4. **`section_featured_collections`** — `heading` (single_line_text_field), `collections` (list.collection_reference)
-5. **`link`** — `text`, `href`, `target` (single_line_text_field)
+| Display name | Type | Key fields |
+|---|---|---|
+| `[HYDROGEN DEMO] Index wrapper` | `hydrogen_demo_index_wrapper` | `title`, `sections` (list.metaobject_reference), `storefront_handle` (single_line_text) |
+| `[HYDROGEN DEMO] Sections wrapper` | `route` | `title`, `sections` (list.metaobject_reference) |
+| `[HYDROGEN DEMO] Section - hero` | `section_hero` | TBD |
+| `[HYDROGEN DEMO] Section - featured products` | `section_featured_products` | TBD |
+| `[HYDROGEN DEMO] Section - featured collections` | `section_featured_collections` | TBD |
+| `[HYDROGEN DEMO] Section - contact form` | `section_contact_form` | TBD |
 
-### Scaling Content to Other Routes
+**Page metafield definitions** (Settings > Custom data > Pages):
 
-#### Standalone pages (no existing resource)
+One metafield definition per storefront, each of type Metaobject (referencing `route`):
+- Namespace: `default`, Key: `sections` → for Storefront 1
+- Namespace: `variant-b`, Key: `sections` → for Variant B
 
-Use the route metaobject pattern. Create a new route file:
+---
 
-```tsx
-// app/routes/($locale).about.tsx
-import {useLoaderData} from 'react-router';
-import {ROUTE_CONTENT_QUERY, RouteContent} from '~/sections/RouteContent';
+### Section Registry Pattern
 
-export async function loader({context}: Route.LoaderArgs) {
-  const storefrontHandle = context.env.STOREFRONT_HANDLE || 'default';
-  const {route} = await context.storefront.query(ROUTE_CONTENT_QUERY, {
-    variables: {handle: `about-${storefrontHandle}`},
-  });
-  return {route};
-}
+`app/sections/Sections.tsx` is the **single registry** for all section types. It aggregates fragments and maps metaobject types to components. Unknown types fall back to displaying `type: heading` so content is never invisible.
 
-export default function About() {
-  const {route} = useLoaderData<typeof loader>();
-  return <RouteContent route={route} />;
-}
-```
+**Why all fragments live in `SECTIONS_FRAGMENT`:**
+Shopify's Storefront API returns every section metaobject as the same `Metaobject` GraphQL type — there are no separate types per definition. So we spread all section fragments onto every node and get `null` back for fields that don't belong to a given definition. Each component only uses its own fields.
 
-Then create route metaobject entries: `about-default`, `about-variant-b`.
+**To add a new section type (e.g. `section_text_with_image`):**
+1. Create the metaobject definition in Shopify Admin
+2. Create `app/sections/SectionTextWithImage.tsx` — export the component + `SECTION_TEXT_WITH_IMAGE_FRAGMENT`
+3. In `Sections.tsx`:
+   - Import the component and fragment
+   - Add `section_text_with_image: SectionTextWithImage` to `SECTION_REGISTRY`
+   - Spread `${SECTION_TEXT_WITH_IMAGE_FRAGMENT}` into `SECTIONS_FRAGMENT`
+4. Run `npm run codegen`
 
-#### Resource pages (products, collections, pages)
+The `Sections` component and `SECTIONS_FRAGMENT` can be used in **any route** — pages, collections, products — by querying the relevant metafield and passing it to `<Sections sections={...} />`.
 
-For pages that already have a Shopify resource, attach sections as **metafields on the resource** instead of using a separate route metaobject:
+---
 
-1. **Shopify Admin** > Settings > Custom data > Products > Add definition:
-   - Key: `sections`, Type: `list.metaobject_reference`
+### Adding a New Page (Zero Code Changes)
 
-2. Add the metafield to the existing product query:
-   ```graphql
-   product(handle: $handle) {
-     # ... existing fields
-     sections: metafield(namespace: "custom", key: "sections") {
-       references(first: 10) {
-         nodes {
-           ... on Metaobject {
-             id
-             type
-             ...SectionHero
-             ...SectionFeaturedProducts
-             ...SectionFeaturedCollections
-           }
-         }
-       }
-     }
-   }
-   ```
+1. Create a Shopify Page in Admin (e.g. handle `about`)
+2. Set the per-storefront metafields on the page pointing to a `route` metaobject
+3. Create `route` metaobject entries and add section metaobjects — the `/pages/about` route already exists
 
-3. Render alongside the product: `{product.sections && <Sections sections={product.sections} />}`
-
-This works the same way for collections, pages, or any resource that supports metafields. No extra API call needed — sections come back in the same query.
-
-### Adding a New Section Type
-
-1. Create a metaobject definition in Shopify Admin (e.g. `section_rich_text`)
-2. Create `app/sections/SectionRichText.tsx` with the component + GraphQL fragment
-3. Register in `app/sections/Sections.tsx` switch statement + add fragment to `SECTIONS_FRAGMENT`
+---
 
 ### Adding a New Storefront (Zero Code Changes)
 
@@ -138,19 +134,23 @@ This works the same way for collections, pages, or any resource that supports me
    - `STOREFRONT_HANDLE=storefront-3`
    - `HEADER_MENU_HANDLE=main-menu-storefront-3`
    - `FOOTER_MENU_HANDLE=footer-storefront-3`
-3. Create navigation menus with those handles in Shopify Admin
-4. Create route metaobject entries: `home-storefront-3`, etc.
-5. Push to `main` — the new storefront deploys with its own content automatically
+3. Create navigation menus in Shopify Admin
+4. Add a `hydrogen_demo_index_wrapper` entry with `storefront_handle = storefront-3`
+5. Add metafield definitions on Pages for `namespace: storefront-3`
+6. Push to `main` — new storefront deploys with its own content automatically
+
+---
 
 ## Project Structure (Key Paths)
 
 ```
 app/
-  components/EditRoute.tsx     — dev-only edit link to Shopify admin
-  lib/fragments.ts             — shared GraphQL fragments (cart, menu, product)
-  routes/($locale)._index.tsx  — homepage (metaobjects-driven)
-  sections/                    — CMS section components + RouteContent
-  utils/parseSection.ts        — metaobject field parser
-env.d.ts                       — Env type extensions
-.env                           — local dev defaults
+  components/EditRoute.tsx        — dev-only edit link to Shopify admin
+  lib/fragments.ts                — shared GraphQL fragments (cart, menu, product)
+  routes/($locale)._index.tsx     — homepage (hydrogen_demo_index_wrapper-driven)
+  routes/($locale).pages.$handle  — pages route (Page resource + metafield sections)
+  sections/Sections.tsx           — registry-based section renderer + SECTIONS_FRAGMENT
+  sections/Section*.tsx           — section components (registered in Sections.tsx)
+env.d.ts                          — Env type extensions
+.env                              — local dev defaults
 ```

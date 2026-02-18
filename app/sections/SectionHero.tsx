@@ -1,34 +1,23 @@
-import type {ParsedMetafields} from '@shopify/hydrogen';
-import {parseSection} from '~/utils/parseSection';
-import {Link} from '~/components/Link';
+import {Image} from '@shopify/hydrogen';
 import type {SectionHeroFragment} from 'storefrontapi.generated';
 
 export function SectionHero(props: SectionHeroFragment) {
-  const section = parseSection<
-    SectionHeroFragment,
-    {
-      heading?: ParsedMetafields['single_line_text_field'];
-      subheading?: ParsedMetafields['single_line_text_field'];
-    }
-  >(props);
+  const {heading, subheading, image} = props;
 
-  const {image, heading, subheading, link} = section;
-
-  const backgroundImage = image?.image?.url
-    ? `url("${image.image.url}")`
-    : undefined;
+  const imgData = image?.reference?.__typename === 'MediaImage'
+    ? image.reference.image
+    : null;
 
   return (
     <section
       className="section-hero"
       style={{
-        backgroundImage,
-        height: '50%',
+        backgroundImage: imgData?.url ? `url("${imgData.url}")` : undefined,
+        minHeight: '500px',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         position: 'relative',
-        minHeight: '500px',
       }}
     >
       <div
@@ -38,28 +27,11 @@ export function SectionHero(props: SectionHeroFragment) {
           justifyContent: 'center',
           paddingLeft: '2rem',
           position: 'absolute',
-          top: 0,
-          right: 0,
-          left: 0,
-          bottom: 0,
+          inset: 0,
         }}
       >
-        {heading && <h1 style={{marginBottom: 0}}>{heading.parsedValue}</h1>}
-        {subheading && <p>{subheading.value}</p>}
-        {link?.href?.value && (
-          <Link
-            to={link.href.value}
-            style={{
-              textDecoration: 'underline',
-              marginTop: '1rem',
-            }}
-            {...(link?.target?.value !== 'false'
-              ? {target: '_blank', rel: 'noreferrer'}
-              : {})}
-          >
-            {link?.text?.value}
-          </Link>
-        )}
+        {heading?.value && <h1 style={{marginBottom: 0}}>{heading.value}</h1>}
+        {subheading?.value && <p>{subheading.value}</p>}
       </div>
     </section>
   );
@@ -76,49 +48,22 @@ const MEDIA_IMAGE_FRAGMENT = `#graphql
   }
 `;
 
-const LINK_FRAGMENT = `#graphql
-  fragment Link on MetaobjectField {
-    ... on MetaobjectField {
-      reference {
-        ...on Metaobject {
-          href: field(key: "href") {
-            value
-          }
-          target: field(key: "target") {
-            value
-          }
-          text: field(key: "text") {
-            value
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const SECTION_HERO_FRAGMENT = `#graphql
   fragment SectionHero on Metaobject {
-    type
     heading: field(key: "heading") {
-      key
       value
     }
     subheading: field(key: "subheading") {
-      key
       value
     }
-    link: field(key: "link") {
-      ...Link
-    }
     image: field(key: "image") {
-      key
       reference {
+        __typename
         ... on MediaImage {
           ...MediaImage
         }
       }
     }
   }
-  ${LINK_FRAGMENT}
   ${MEDIA_IMAGE_FRAGMENT}
 `;
