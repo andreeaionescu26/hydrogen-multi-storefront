@@ -1,4 +1,4 @@
-import { Analytics, getShopAnalytics, useNonce } from "@shopify/hydrogen";
+import { Analytics, getShopAnalytics, useNonce, Script } from "@shopify/hydrogen";
 import {
   Outlet,
   useRouteError,
@@ -44,13 +44,26 @@ function links() {
 async function loader(args) {
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
-  const { storefront, env } = args.context;
+  const { storefront, env, customerAccount } = args.context;
   const selectedLocale = storefront.i18n;
+
+  let customerAccessToken = null;
+  try {
+    const isLoggedIn = await customerAccount.isLoggedIn();
+    if (isLoggedIn) {
+      customerAccessToken = await customerAccount.getAccessToken();
+    }
+  } catch (error) {
+    customerAccessToken = null;
+  }
+
   return {
     ...deferredData,
     ...criticalData,
     selectedLocale,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    publicAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
+    customerAccessToken,
     storefrontHandle: env.STOREFRONT_HANDLE || "default",
     publicStoreSubdomain: env.PUBLIC_STORE_DOMAIN?.replace(
       ".myshopify.com",
@@ -112,6 +125,11 @@ function Layout({ children }) {
         <link rel="stylesheet" href={appStyles} />
         <Meta />
         <Links />
+        <Script
+          src="https://cdn.shopify.com/storefront/web-components/account.js"
+          type="module"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         {children}

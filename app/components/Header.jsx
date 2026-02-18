@@ -11,7 +11,9 @@ function Header({
   header,
   isLoggedIn,
   cart,
-  publicStoreDomain
+  publicStoreDomain,
+  publicAccessToken,
+  customerAccessToken
 }) {
   const { shop, menu } = header;
   return <header className="header">
@@ -24,7 +26,12 @@ function Header({
     primaryDomainUrl={header.shop.primaryDomain.url}
     publicStoreDomain={publicStoreDomain}
   />
-      <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
+      <HeaderCtas
+    cart={cart}
+    publicStoreDomain={publicStoreDomain}
+    publicAccessToken={publicAccessToken}
+    customerAccessToken={customerAccessToken}
+  />
     </header>;
 }
 function HeaderMenu({
@@ -65,18 +72,20 @@ function HeaderMenu({
     </nav>;
 }
 function HeaderCtas({
-  isLoggedIn,
-  cart
+  cart,
+  publicStoreDomain,
+  publicAccessToken,
+  customerAccessToken
 }) {
   return <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
-      <Link variant="nav" prefetch="intent" to="/account" style={activeLinkStyle}>
-        <Suspense fallback="Sign in">
-          <Await resolve={isLoggedIn} errorElement="Sign in">
-            {(isLoggedIn2) => isLoggedIn2 ? "Account" : "Sign in"}
-          </Await>
-        </Suspense>
-      </Link>
+      <shopify-store
+        store-domain={publicStoreDomain}
+        public-access-token={publicAccessToken}
+        customer-access-token={customerAccessToken || undefined}
+      >
+        <shopify-account sign-in-url="/account/login"></shopify-account>
+      </shopify-store>
       <SearchToggle />
       <CartToggle cart={cart} />
     </nav>;
