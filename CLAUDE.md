@@ -8,16 +8,15 @@ This is a Shopify Hydrogen storefront that supports **multiple storefronts from 
 
 - Shopify Hydrogen 2026.1.0
 - React Router 7
-- TypeScript
+- JavaScript (JSX) — no TypeScript
 - Tailwind CSS 4
 - Deployed on Shopify Oxygen
 
 ## Commands
 
-- `npm run dev` — local dev server with codegen
+- `npm run dev` — local dev server
 - `npm run build` — production build
-- `npm run typecheck` — run `react-router typegen && tsc --noEmit`
-- `npm run codegen` — regenerate GraphQL types
+- `npm run codegen` — regenerate GraphQL types (generates `.d.ts` files, used for reference only)
 - `npm run lint` — ESLint
 
 ## Architecture: Multi-Storefront Differentiation
