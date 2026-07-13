@@ -14,6 +14,8 @@ async function loadCriticalData({ context }) {
   const { metaobjects } = await storefront.query(INDEX_CONTENT_QUERY, {
     variables: {}
   });
+  console.log(JSON.stringify(metaobjects, null, 2));
+  
   const indexWrapper = metaobjects?.nodes.find(
     (node) => node.storefrontHandle?.value === storefrontHandle
   );
@@ -33,7 +35,7 @@ const INDEX_CONTENT_QUERY = `#graphql
     $country: CountryCode
     $language: LanguageCode
   ) @inContext(country: $country, language: $language) {
-    metaobjects(type: "hydrogen_demo_index_wrapper", first: 10) {
+    metaobjects(type: "cms_index_wrapper", first: 10) {
       nodes {
         id
         storefrontHandle: field(key: "storefront_handle") {
