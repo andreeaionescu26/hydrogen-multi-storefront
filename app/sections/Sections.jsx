@@ -1,19 +1,23 @@
 import { SECTION_PAGE_HEADER_FRAGMENT, SectionPageHeader } from "./SectionPageHeader";
+import {
+  SECTION_LIST_OF_COLLECTIONS_FRAGMENT,
+  SectionListOfCollections,
+} from "./SectionListOfCollections";
 
-// TODO: rebuild and register once field structures are confirmed the same way
-// page header was:
+// TODO: rebuild and register once field structure is confirmed the same way
+// page header and list of collections were:
 //   - cms_section_list_of_products
-//   - cms_section_list_of_collections
 //
 // The old SectionHero / SectionFeaturedProducts / SectionFeaturedCollections
 // components were built against demo metaobject types (section_hero,
 // section_featured_products, section_featured_collections) that don't match
 // this store's real definitions. They're intentionally left out of the
 // registry until rebuilt against confirmed real field keys, same process as
-// SectionPageHeader below.
+// the two sections below.
 
 const SECTION_REGISTRY = {
   cms_section_page_header: SectionPageHeader,
+  cms_section_list_of_collections: SectionListOfCollections,
 };
 
 function Sections({ sections }) {
@@ -57,11 +61,13 @@ const SECTIONS_FRAGMENT = `#graphql
             value
           }
           ...SectionPageHeader
+          ...SectionListOfCollections
         }
       }
     }
   }
   ${SECTION_PAGE_HEADER_FRAGMENT}
+  ${SECTION_LIST_OF_COLLECTIONS_FRAGMENT}
 `;
 
 export { SECTIONS_FRAGMENT, Sections };
