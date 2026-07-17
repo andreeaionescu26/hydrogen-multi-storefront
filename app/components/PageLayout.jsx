@@ -18,7 +18,8 @@ function PageLayout({
   isLoggedIn,
   publicStoreDomain,
   publicAccessToken,
-  customerAccessToken
+  customerAccessToken,
+  logoUrl
 }) {
   return <Aside.Provider>
       <CartAside cart={cart} />
@@ -31,6 +32,7 @@ function PageLayout({
     publicStoreDomain={publicStoreDomain}
     publicAccessToken={publicAccessToken}
     customerAccessToken={customerAccessToken}
+    logoUrl={logoUrl}
   />}
       <main>{children}</main>
       <Footer

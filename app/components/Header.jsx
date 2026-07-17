@@ -13,12 +13,17 @@ function Header({
   cart,
   publicStoreDomain,
   publicAccessToken,
-  customerAccessToken
+  customerAccessToken,
+  logoUrl,
 }) {
   const { shop, menu } = header;
   return <header className="header">
       <Link variant="nav" prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
+        {logoUrl ? (
+          <img src={logoUrl} alt={shop.name} style={{ height: 40 }} />
+        ) : (
+          <strong>{shop.name}</strong>
+        )}
       </Link>
       <HeaderMenu
     menu={menu}

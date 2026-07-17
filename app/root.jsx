@@ -93,7 +93,7 @@ async function loadCriticalData({ context }) {
     })
     // Add other queries here, so that they are loaded in parallel
   ]);
-  return { header };
+  return { header, logoUrl: context.env.PUBLIC_LOGO_URL || null };
 }
 function loadDeferredData({ context }) {
   const { storefront, customerAccount, cart } = context;
