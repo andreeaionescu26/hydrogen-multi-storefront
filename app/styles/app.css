@@ -4,8 +4,29 @@
   --cart-aside-summary-height: 250px;
   --grid-item-width: 355px;
   --header-height: 64px;
-  --color-dark: #000;
-  --color-light: #fff;
+  /* Base */
+  --color-white: #ffffff;
+  --color-dark: #3b3735;
+  --color-surface: #e8e8e8;
+
+  /* Accent */
+  --color-accent: #f5812d;
+  --color-accent-hover: #d96b1f;
+  --color-accent-muted: #fbe4d2; /* light tint, useful for badges/backgrounds */
+
+  /* Text */
+  --color-text-primary: #3b3735;
+  --color-text-secondary: #6b6560;
+  --color-text-muted: #9a948e;
+  --color-text-on-dark: #ffffff;
+  --color-text-on-accent: #ffffff;
+
+  /* Borders */
+  --color-border: #e0e0e0;
+  --color-border-strong: #c9c9c9;
+
+  /* Backwards-compat aliases so nothing currently referencing these breaks */
+  --color-light: #ffffff;
 }
 
 img {
@@ -176,13 +197,27 @@ button.reset:hover:not(:has(> *)) {
 */
 .header {
   align-items: center;
-  background: #fff;
   display: flex;
   height: var(--header-height);
   padding: 0 1rem;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
+
+  /* glass */
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* fallback for browsers without backdrop-filter support */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .header {
+    background: rgba(255, 255, 255, 0.96);
+  }
 }
 
 .header-menu-mobile-toggle {
@@ -591,4 +626,179 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+/*
+* --------------------------------------------------
+* sections/SectionHomeHero (glass)
+* --------------------------------------------------
+*/
+.home-hero {
+  position: relative;
+  min-height: 620px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.home-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 700px 500px at 75% 30%,
+      rgba(245, 129, 45, 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 500px 400px at 20% 80%,
+      rgba(217, 107, 31, 0.35),
+      transparent 60%
+    ),
+    #211d1c;
+}
+
+.home-hero__media img,
+.home-hero__media video,
+.home-hero__media iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+
+.home-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    rgba(0, 0, 0, 0) 70%
+  );
+}
+
+.home-hero__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.home-hero__copy {
+  max-width: 560px;
+  color: #fff;
+}
+
+.home-hero__eyebrow {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent, #f5812d);
+  margin: 0 0 1rem;
+}
+
+.home-hero__copy h1 {
+  font-size: clamp(30px, 4.5vw, 48px);
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+}
+
+.home-hero__subheading {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.home-hero__ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.home-hero__cta-solid,
+.home-hero__cta-glass {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.home-hero__cta-solid {
+  background: var(--color-accent, #f5812d);
+  color: #fff;
+}
+
+.home-hero__cta-glass {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+/* the glass fact card — second (last) glass moment on this page */
+.home-hero__fact-card {
+  padding: 22px 24px;
+  min-width: 220px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.home-hero__fact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+}
+
+.home-hero__fact-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.home-hero__fact-row span:first-child {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.home-hero__fact-row span:last-child {
+  color: #fff;
+  font-weight: 500;
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .home-hero__cta-glass,
+  .home-hero__fact-card {
+    background: rgba(59, 55, 53, 0.85);
+  }
+}
+
+@media (max-width: 860px) {
+  .home-hero__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .home-hero__fact-card {
+    width: 100%;
+  }
 }

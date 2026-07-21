@@ -1,5 +1,5 @@
-import { Link } from "~/components/Link";
-import { RichText } from "@shopify/hydrogen";
+import {Link} from '~/components/Link';
+import {RichText} from '@shopify/hydrogen';
 
 function SectionPageHeader(props) {
   const {
@@ -22,47 +22,51 @@ function SectionPageHeader(props) {
   const buttonHref = buttonCollectionLink?.reference?.handle
     ? `/collections/${buttonCollectionLink.reference.handle}`
     : buttonPageLink?.reference?.handle
-    ? `/pages/${buttonPageLink.reference.handle}`
-    : buttonProductLink?.reference?.handle
-    ? `/products/${buttonProductLink.reference.handle}`
-    : null;
+      ? `/pages/${buttonPageLink.reference.handle}`
+      : buttonProductLink?.reference?.handle
+        ? `/products/${buttonProductLink.reference.handle}`
+        : null;
 
   const imageUrl = image?.reference?.image?.url;
   const videoUrl = video?.reference?.url;
   const badgeImageUrl = badgeImage?.reference?.image?.url;
 
   return (
-    <section style={{ position: "relative" }}>
+    <section style={{position: 'relative'}}>
       {badgeImageUrl && (
         <div
           style={{
-            position: "absolute",
-            top: "1rem",
-            left: "1rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
+            position: 'absolute',
+            top: '1rem',
+            left: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
             zIndex: 1,
           }}
         >
-          <img src={badgeImageUrl} alt="" style={{ width: 32, height: 32 }} />
+          <img src={badgeImageUrl} alt="" style={{width: 32, height: 32}} />
           {badgeText?.value && <span>{badgeText.value}</span>}
         </div>
       )}
 
       {videoUrl ? (
-        <video autoPlay muted loop playsInline style={{ width: "100%" }}>
+        <video autoPlay muted loop playsInline style={{width: '100%'}}>
           <source src={videoUrl} type={video?.reference?.mimeType} />
         </video>
       ) : youtubeUrl?.value ? (
         <iframe
           src={youtubeUrl.value}
-          title={header?.value ?? "Video"}
-          style={{ width: "100%", aspectRatio: "16/9", border: 0 }}
+          title={header?.value ?? 'Video'}
+          style={{width: '100%', aspectRatio: '16/9', border: 0}}
           allowFullScreen
         />
       ) : imageUrl ? (
-        <img src={imageUrl} alt={imageAlt?.value ?? ""} style={{ width: "100%" }} />
+        <img
+          src={imageUrl}
+          alt={imageAlt?.value ?? ''}
+          style={{width: '100%'}}
+        />
       ) : null}
 
       <div>
@@ -126,4 +130,4 @@ const SECTION_PAGE_HEADER_FRAGMENT = `#graphql
   }
 `;
 
-export { SECTION_PAGE_HEADER_FRAGMENT, SectionPageHeader };
+export {SECTION_PAGE_HEADER_FRAGMENT, SectionPageHeader};

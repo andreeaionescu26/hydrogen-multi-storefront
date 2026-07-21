@@ -45,6 +45,8 @@ import {
   SectionRichTextWithBackground,
 } from './SectionRichTextWithBackground';
 
+import {SECTION_HOME_HERO_FRAGMENT, SectionHomeHero} from './SectionHomeHero';
+
 const SECTION_REGISTRY = {
   cms_section_page_header: SectionPageHeader,
   cms_section_list_of_collections: SectionListOfCollections,
@@ -56,6 +58,7 @@ const SECTION_REGISTRY = {
   cms_section_single_media: SectionSingleMedia,
   cms_section_two_media: SectionTwoMedia,
   cms_section_rich_text_with_background: SectionRichTextWithBackground,
+  cms_section_home_hero: SectionHomeHero,
 };
 
 function Sections({sections}) {
@@ -110,6 +113,7 @@ const SECTIONS_FRAGMENT = `#graphql
           ...SectionSingleMedia
           ...SectionTwoMedia
           ...SectionRichTextWithBackground
+          ...SectionHomeHero
         }
       }
     }
@@ -124,6 +128,7 @@ const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_SINGLE_MEDIA_FRAGMENT}
   ${SECTION_TWO_MEDIA_FRAGMENT}
   ${SECTION_RICH_TEXT_WITH_BACKGROUND_FRAGMENT}
+  ${SECTION_HOME_HERO_FRAGMENT}
 `;
 
 export {SECTIONS_FRAGMENT, Sections};
