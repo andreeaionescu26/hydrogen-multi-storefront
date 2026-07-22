@@ -1,0 +1,71 @@
+import {
+  CarSimple,
+  Truck,
+  Package,
+  CurrencyCircleDollar,
+  Gift,
+  Heart,
+  Globe,
+  Check,
+  ArrowUpLeft,
+  Lightning,
+  CalendarBlank,
+  BellRinging,
+  MapPin,
+  Smiley,
+  PaperPlaneTilt,
+  Phone,
+  Chat,
+  Tag,
+  Clock,
+  Speaker,
+  MusicNote,
+  Airplane,
+  Alarm,
+  Playlist,
+  DropSlash,
+  PauseCircle,
+  Sliders,
+  Acorn,
+  Leaf,
+} from '@phosphor-icons/react';
+
+const ICON_MAP = {
+  'car-simple': CarSimple,
+  truck: Truck,
+  package: Package,
+  'currency-circle-dollar': CurrencyCircleDollar,
+  gift: Gift,
+  heart: Heart,
+  globe: Globe,
+  check: Check,
+  'arrow-up-left': ArrowUpLeft,
+  lightning: Lightning,
+  'calendar-blank': CalendarBlank,
+  'bell-ringing': BellRinging,
+  'map-pin': MapPin,
+  smiley: Smiley,
+  paperplane: PaperPlaneTilt,
+  phone: Phone,
+  chat: Chat,
+  tag: Tag,
+  clock: Clock,
+  sound: Speaker,
+  music: MusicNote,
+  airplane: Airplane,
+  alarm: Alarm,
+  'play-list': Playlist,
+  'drop-slash': DropSlash,
+  'pause-circle': PauseCircle,
+  sliders: Sliders,
+  acorn: Acorn,
+  leaf: Leaf,
+};
+
+function UspIcon({name, ...props}) {
+  const Icon = ICON_MAP[name];
+  if (!Icon) return null;
+  return <Icon size={22} weight="regular" {...props} />;
+}
+
+export {UspIcon};

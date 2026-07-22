@@ -47,6 +47,8 @@ import {
 
 import {SECTION_HOME_HERO_FRAGMENT, SectionHomeHero} from './SectionHomeHero';
 
+import {SECTION_USP_LIST_FRAGMENT, SectionUspList} from './SectionUspList';
+
 const SECTION_REGISTRY = {
   cms_section_page_header: SectionPageHeader,
   cms_section_list_of_collections: SectionListOfCollections,
@@ -59,6 +61,7 @@ const SECTION_REGISTRY = {
   cms_section_two_media: SectionTwoMedia,
   cms_section_rich_text_with_background: SectionRichTextWithBackground,
   cms_section_home_hero: SectionHomeHero,
+  cms_section_usp_list: SectionUspList,
 };
 
 function Sections({sections}) {
@@ -69,25 +72,19 @@ function Sections({sections}) {
     <div className="sections">
       {nodes.map((section) => {
         const Component = SECTION_REGISTRY[section.type];
-        if (!Component);
 
-        return (
-          <div
-            key={section.id}
-            style={{border: '1px dashed #ccc', margin: '0.5rem 0'}}
-          >
-            {Component ? (
-              <Component {...section} />
-            ) : (
-              <div style={{padding: '1rem'}}>
-                {section.type}:{' '}
-                <strong>
-                  {section.heading?.value ?? 'Section missing registry'}
-                </strong>
-              </div>
-            )}
-          </div>
-        );
+        if (!Component) {
+          return (
+            <div key={section.id} style={{padding: '1rem'}}>
+              {section.type}:{' '}
+              <strong>
+                {section.heading?.value ?? 'Section missing registry'}
+              </strong>
+            </div>
+          );
+        }
+
+        return <Component key={section.id} {...section} />;
       })}
     </div>
   );
@@ -114,6 +111,7 @@ const SECTIONS_FRAGMENT = `#graphql
           ...SectionTwoMedia
           ...SectionRichTextWithBackground
           ...SectionHomeHero
+          ...SectionUspList 
         }
       }
     }
@@ -129,6 +127,7 @@ const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_TWO_MEDIA_FRAGMENT}
   ${SECTION_RICH_TEXT_WITH_BACKGROUND_FRAGMENT}
   ${SECTION_HOME_HERO_FRAGMENT}
+  ${SECTION_USP_LIST_FRAGMENT}
 `;
 
 export {SECTIONS_FRAGMENT, Sections};
