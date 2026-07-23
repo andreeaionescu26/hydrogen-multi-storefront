@@ -28,56 +28,69 @@ function SectionPageHeader(props) {
         : null;
 
   const imageUrl = image?.reference?.image?.url;
-  const videoUrl = video?.reference?.url;
   const badgeImageUrl = badgeImage?.reference?.image?.url;
 
+  // Handles both native Shopify `Video` uploads (which return a `sources` array,
+  // often with multiple formats/resolutions) and legacy `GenericFile` references.
+  // Prefer an mp4 source if one exists, since a plain <video> tag can't play
+  // HLS (.m3u8) streams without extra JS.
+  const videoSources = video?.reference?.sources;
+  const genericVideoUrl = video?.reference?.url;
+
+  let videoSource = null;
+  if (videoSources?.length) {
+    videoSource =
+      videoSources.find((s) => s.mimeType === 'video/mp4') ?? videoSources[0];
+  } else if (genericVideoUrl) {
+    videoSource = {url: genericVideoUrl, mimeType: video?.reference?.mimeType};
+  }
+
   return (
-    <section style={{position: 'relative'}}>
-      {badgeImageUrl && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            left: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            zIndex: 1,
-          }}
-        >
-          <img src={badgeImageUrl} alt="" style={{width: 32, height: 32}} />
-          {badgeText?.value && <span>{badgeText.value}</span>}
+    <section className="page-header">
+      <div className="page-header__inner">
+        <div className="page-header__copy">
+          {subheader?.value && (
+            <p className="page-header__eyebrow">{subheader.value}</p>
+          )}
+          {header?.value && <h1>{header.value}</h1>}
+          {richText?.value && (
+            <div className="page-header__richtext">
+              <RichText data={richText.value} />
+            </div>
+          )}
+          {buttonLabel?.value && buttonHref && (
+            <Link
+              to={buttonHref}
+              prefetch="intent"
+              className="page-header__cta"
+            >
+              {buttonLabel.value}
+            </Link>
+          )}
         </div>
-      )}
 
-      {videoUrl ? (
-        <video autoPlay muted loop playsInline style={{width: '100%'}}>
-          <source src={videoUrl} type={video?.reference?.mimeType} />
-        </video>
-      ) : youtubeUrl?.value ? (
-        <iframe
-          src={youtubeUrl.value}
-          title={header?.value ?? 'Video'}
-          style={{width: '100%', aspectRatio: '16/9', border: 0}}
-          allowFullScreen
-        />
-      ) : imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={imageAlt?.value ?? ''}
-          style={{width: '100%'}}
-        />
-      ) : null}
+        <div className="page-header__media">
+          {badgeImageUrl && (
+            <div className="page-header__badge">
+              <img src={badgeImageUrl} alt="" />
+              {badgeText?.value && <span>{badgeText.value}</span>}
+            </div>
+          )}
 
-      <div>
-        {subheader?.value && <p>{subheader.value}</p>}
-        {header?.value && <h1>{header.value}</h1>}
-        {richText?.value && <RichText data={richText.value} />}
-        {buttonLabel?.value && buttonHref && (
-          <Link to={buttonHref} prefetch="intent">
-            {buttonLabel.value}
-          </Link>
-        )}
+          {videoSource ? (
+            <video autoPlay muted loop playsInline>
+              <source src={videoSource.url} type={videoSource.mimeType} />
+            </video>
+          ) : youtubeUrl?.value ? (
+            <iframe
+              src={youtubeUrl.value}
+              title={header?.value ?? 'Video'}
+              allowFullScreen
+            />
+          ) : imageUrl ? (
+            <img src={imageUrl} alt={imageAlt?.value ?? ''} />
+          ) : null}
+        </div>
       </div>
     </section>
   );
@@ -117,13 +130,24 @@ const SECTION_PAGE_HEADER_FRAGMENT = `#graphql
     imageAlt: field(key: "image_alt") { value }
     video: field(key: "video") {
       reference {
+        ... on Video {
+          sources {
+            url
+            mimeType
+          }
+        }
         ... on GenericFile { url, mimeType }
       }
     }
     youtubeUrl: field(key: "youtube_url") { value }
     badgeImage: field(key: "badge_image") {
       reference {
-        ... on GenericFile { url }
+        ... on MediaImage {
+          image {
+            url
+            altText
+          }
+        }
       }
     }
     badgeText: field(key: "badge_text") { value }

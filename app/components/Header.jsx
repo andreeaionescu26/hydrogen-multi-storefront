@@ -18,7 +18,7 @@ function Header({
     <header className="header">
       <Link variant="nav" prefetch="intent" to="/" style={activeLinkStyle} end>
         {logoUrl ? (
-          <img src={logoUrl} alt={shop.name} style={{height: 40}} />
+          <img src={logoUrl} alt={shop.name} style={{height: 30}} />
         ) : (
           <strong>{shop.name}</strong>
         )}
@@ -71,7 +71,6 @@ function HeaderMenu({menu, primaryDomainUrl, viewport, publicStoreDomain}) {
             key={item.id}
             onClick={close}
             prefetch="intent"
-            style={activeLinkStyle}
             to={url}
           >
             {item.title}

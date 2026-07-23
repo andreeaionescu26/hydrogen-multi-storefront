@@ -1,68 +1,77 @@
-import { redirect, useLoaderData } from "react-router";
-import { getPaginationVariables, Analytics } from "@shopify/hydrogen";
-import { PaginatedResourceSection } from "~/components/PaginatedResourceSection";
-import { redirectIfHandleIsLocalized } from "~/lib/redirect";
-import { ProductItem } from "~/components/ProductItem";
-const meta = ({ data }) => {
-  return [{ title: `Hydrogen | ${data?.collection.title ?? ""} Collection` }];
+import {redirect, useLoaderData} from 'react-router';
+import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
+import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {ProductItem} from '~/components/ProductItem';
+import {displayTitle} from '~/lib/collectionTitle';
+const meta = ({data}) => {
+  return [
+    {
+      title: `Hydrogen | ${displayTitle(data?.collection.title) ?? ''} Collection`,
+    },
+  ];
 };
 async function loader(args) {
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
-  return { ...deferredData, ...criticalData };
+  return {...deferredData, ...criticalData};
 }
-async function loadCriticalData({ context, params, request }) {
-  const { handle } = params;
-  const { storefront } = context;
+async function loadCriticalData({context, params, request}) {
+  const {handle} = params;
+  const {storefront} = context;
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8
+    pageBy: 8,
   });
   if (!handle) {
-    throw redirect("/collections");
+    throw redirect('/collections');
   }
-  const [{ collection }] = await Promise.all([
+  const [{collection}] = await Promise.all([
     storefront.query(COLLECTION_QUERY, {
-      variables: { handle, ...paginationVariables }
+      variables: {handle, ...paginationVariables},
       // Add other queries here, so that they are loaded in parallel
-    })
+    }),
   ]);
   if (!collection) {
     throw new Response(`Collection ${handle} not found`, {
-      status: 404
+      status: 404,
     });
   }
-  redirectIfHandleIsLocalized(request, { handle, data: collection });
+  redirectIfHandleIsLocalized(request, {handle, data: collection});
   return {
-    collection
+    collection,
   };
 }
-function loadDeferredData({ context }) {
+function loadDeferredData({context}) {
   return {};
 }
 function Collection() {
-  const { collection } = useLoaderData();
-  return <div className="collection">
-      <h1>{collection.title}</h1>
+  const {collection} = useLoaderData();
+  return (
+    <div className="collection">
+      <h1>{displayTitle(collection.title)}</h1>
       <p className="collection-description">{collection.description}</p>
       <PaginatedResourceSection
-    connection={collection.products}
-    resourcesClassName="products-grid"
-  >
-        {({ node: product, index }) => <ProductItem
-    key={product.id}
-    product={product}
-    loading={index < 8 ? "eager" : void 0}
-  />}
+        connection={collection.products}
+        resourcesClassName="products-grid"
+      >
+        {({node: product, index}) => (
+          <ProductItem
+            key={product.id}
+            product={product}
+            loading={index < 8 ? 'eager' : void 0}
+          />
+        )}
       </PaginatedResourceSection>
       <Analytics.CollectionView
-    data={{
-      collection: {
-        id: collection.id,
-        handle: collection.handle
-      }
-    }}
-  />
-    </div>;
+        data={{
+          collection: {
+            id: collection.id,
+            handle: collection.handle,
+          },
+        }}
+      />
+    </div>
+  );
 }
 const PRODUCT_ITEM_FRAGMENT = `#graphql
   fragment MoneyProductItem on MoneyV2 {
@@ -125,8 +134,4 @@ const COLLECTION_QUERY = `#graphql
     }
   }
 `;
-export {
-  Collection as default,
-  loader,
-  meta
-};
+export {Collection as default, loader, meta};
