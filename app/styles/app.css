@@ -321,7 +321,7 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .header-menu-item {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--color-text-primary, #3b3735);
   white-space: nowrap;
@@ -790,7 +790,7 @@ button.reset:hover:not(:has(> *)) {
 */
 .home-hero {
   position: relative;
-  min-height: 620px;
+  min-height: 800px;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
