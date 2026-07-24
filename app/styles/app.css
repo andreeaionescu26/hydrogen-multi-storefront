@@ -276,7 +276,7 @@ button.reset:hover:not(:has(> *)) {
   height: var(--header-height);
   padding: 0 0.75rem 0 1.5rem;
 
-  border-radius: 999px;
+  border-radius: 16px;
 
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(16px) saturate(160%);
@@ -860,7 +860,7 @@ button.reset:hover:not(:has(> *)) {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 2rem 3rem;
+  padding: 2rem 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -906,8 +906,8 @@ button.reset:hover:not(:has(> *)) {
 .home-hero__cta-glass {
   display: inline-block;
   padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 16px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -924,11 +924,11 @@ button.reset:hover:not(:has(> *)) {
   color: #fff;
 }
 
-/* the glass fact card — second (last) glass moment on this page */
+/* the glass fact card â€” second (last) glass moment on this page */
 .home-hero__fact-card {
   padding: 22px 24px;
   min-width: 220px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -993,7 +993,7 @@ button.reset:hover:not(:has(> *)) {
   grid-template-columns: 1fr 1fr;
   align-items: start;
   gap: 4rem;
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -1036,7 +1036,7 @@ button.reset:hover:not(:has(> *)) {
 .page-header__cta {
   display: inline-block;
   padding: 12px 26px;
-  border-radius: 8px;
+  border-radius: 16px;
   font-size: 14px;
   font-weight: 500;
   background: var(--color-accent, #f5812d);
@@ -1051,7 +1051,7 @@ button.reset:hover:not(:has(> *)) {
 
 .page-header__media {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 4 / 3;
   max-height: 460px;
@@ -1134,13 +1134,17 @@ button.reset:hover:not(:has(> *)) {
   padding: 3.5rem 2rem;
 }
 
+.collection-list__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
 .collection-list__top {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 2rem;
-  max-width: 1440px;
-  margin: 0 auto 2rem;
+  margin-bottom: 2rem;
 }
 
 .collection-list__intro {
@@ -1169,7 +1173,7 @@ button.reset:hover:not(:has(> *)) {
   flex-shrink: 0;
   display: inline-block;
   padding: 11px 22px;
-  border-radius: 8px;
+  border-radius: 16px;
   font-size: 14px;
   font-weight: 500;
   border: 1px solid var(--color-dark, #3b3735);
@@ -1190,8 +1194,6 @@ button.reset:hover:not(:has(> *)) {
   gap: 1.25rem;
   overflow-x: auto;
   scroll-snap-type: x proximity;
-  max-width: 1440px;
-  margin: 0 auto;
   padding: 0.25rem 0 1rem;
   scrollbar-width: none;
 }
@@ -1269,7 +1271,7 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 1500px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
